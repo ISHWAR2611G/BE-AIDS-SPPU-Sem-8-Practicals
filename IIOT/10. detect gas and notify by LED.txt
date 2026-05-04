@@ -1,0 +1,29 @@
+// C++ code
+//
+float value;
+void setup()
+{
+  Serial.begin(9600);
+  pinMode(13, OUTPUT);
+}
+
+void loop()
+{
+  value= analogRead(A0);
+  Serial.println(value);
+  
+  if(value>=200){
+  digitalWrite(13, HIGH);
+  Serial.println("Smok Detected!!"); 
+    
+  }
+  else{
+  digitalWrite(13, LOW);
+  Serial.println("Safe "); // Wait for 1000 millisecond(s)
+}
+  delay(1000);
+}
+
+
+
+

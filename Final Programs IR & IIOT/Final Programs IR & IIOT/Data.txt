@@ -1,0 +1,633 @@
+# 01 - Text Document Preprocessing
+# Import required libraries for text processing
+import nltk  # Natural Language Toolkit for NLP tasks
+import re  # Regular expressions for pattern matching
+import string  # String manipulation
+
+# Step 1: Get input text from the user
+text = input("Enter the text to preprocess: ")
+
+# Step 2: Convert text to lowercase
+# This ensures that the text is case-insensitive during processing
+text = text.lower()
+
+# Step 3: Remove punctuation
+# Punctuation characters are removed using string translation
+text = text.translate(str.maketrans("", "", string.punctuation))
+
+# Step 4: Tokenize the text into words
+# Splits the text into individual words using NLTK's word_tokenize
+words = nltk.word_tokenize(text)
+print("Tokenized words:", words)
+
+# Step 5: Remove stopwords
+# Stopwords are common words (like "is", "and", "the") that add little meaning
+# Ensure that NLTK stopwords are downloaded
+nltk.download('stopwords')
+from nltk.corpus import stopwords
+stop_words = set(stopwords.words('english'))  # Get the set of English stopwords
+# Filter out stopwords from the tokenized words
+filtered_words = [word for word in words if word not in stop_words]
+print("Filtered words (no stopwords):", filtered_words)
+
+# Step 6: Perform stemming
+# Stemming reduces words to their root form (e.g., "running" -> "run")
+from nltk.stem import PorterStemmer
+stemmer = PorterStemmer()
+# Apply stemming to each word in the filtered list
+stemmed_words = [stemmer.stem(word) for word in filtered_words]
+print("Stemmed words:", stemmed_words)
+
+# Step 7: Perform lemmatization
+# Lemmatization reduces words to their dictionary form (e.g., "better" -> "good")
+from nltk.stem import WordNetLemmatizer
+nltk.download('wordnet')  # Ensure WordNet data is available
+lemmatizer = WordNetLemmatizer()
+# Apply lemmatization to each word in the filtered list
+lemmatized_words = [lemmatizer.lemmatize(word) for word in filtered_words]
+print("Lemmatized words:", lemmatized_words)
+
+# Step 8: Output the results
+# Display the original and processed texts
+print("\nOriginal text:", text)
+print("Preprocessed text (stemming):", stemmed_words)
+print("Preprocessed text (lemmatization):", lemmatized_words) 
+-------------------------------------------------------
+# 02 - Email Spam Ham Filtering using text classification
+import numpy as np
+import pandas as pd
+import nltk
+from nltk.corpus import stopwords
+import string
+
+df = pd.read_csv("emails.csv")
+df.head()
+
+df.shape
+df.describe()
+df.columns
+
+# To check for duplicates and remove them
+df.drop_duplicates(inplace=True)
+print(df.shape)
+
+# To see the number of missing data for each column
+print(df.isnull().sum())
+
+# Download the stopwords
+nltk.download('stopwords')
+
+def process(text):
+    nopunc = [char for char in text if char not in string.punctuation]
+    nopunc = ''.join(nopunc)
+
+    clean = [word for word in nopunc.split() if word.lower() not in stopwords.words('english')]
+    return clean
+# to show the tokenization
+df['text'].head().apply(process)
+
+# convert the text into a matrix of token counts
+from sklearn.feature_extraction.text import CountVectorizer
+message = CountVectorizer(analyzer=process).fit_transform(df['text'])
+
+# Split the data into 80% training and 20% testing
+from sklearn.model_selection import train_test_split
+xtrain, xtest, ytrain, ytest = train_test_split(message, df['spam'], test_size=0.20, random_state=0)
+# To see the shape of the data
+print(message.shape)
+
+# Create and train the Naive Bayes Classifier
+from sklearn.naive_bayes import MultinomialNB
+classifier = MultinomialNB().fit(xtrain, ytrain)
+
+classifier.predict(xtrain)
+ytrain.values
+
+# Evaluating the model on the training data set
+from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
+pred = classifier.predict(xtrain)
+print(classification_report(ytrain, pred))
+print()
+print("Confusion Matrix: \n", confusion_matrix(ytrain, pred))
+print("Accuracy: \n", accuracy_score(ytrain, pred))
+
+classifier.predict(xtest)
+ytest.values
+-------------------------------------------------------
+# 03 - Inverted Index Implementation
+
+# Import required libraries
+import nltk  # Natural Language Toolkit for text processing
+import re  # Regular expressions (not used explicitly in this code)
+import string  # For handling punctuation
+
+# Step 1: Input Documents
+# Prompt the user to input two documents
+Doc1 = input("Enter the text for Document 1: ")
+Doc2 = input("Enter the text for Document 2: ")
+
+# Convert both documents to lowercase to ensure case insensitivity
+Doc1 = Doc1.lower()
+Doc2 = Doc2.lower()
+print("Document 1 (lowercase):", Doc1)
+print("Document 2 (lowercase):", Doc2)
+
+# Step 2: Remove Punctuation
+# Use string translation to remove punctuation from both documents
+Doc1 = Doc1.translate(str.maketrans("", "", string.punctuation))
+Doc2 = Doc2.translate(str.maketrans("", "", string.punctuation))
+print("Document 1 (no punctuation):", Doc1)
+print("Document 2 (no punctuation):", Doc2)
+
+# Step 3: Tokenize Documents
+# Tokenize the cleaned documents into individual words
+tokenize1 = nltk.word_tokenize(Doc1)
+tokenize2 = nltk.word_tokenize(Doc2)
+print("Tokenized Document 1:", tokenize1)
+print("Tokenized Document 2:", tokenize2)
+
+# Step 4: Get Unique Terms
+# Combine tokens from both documents and extract unique terms
+terms = list(set(tokenize1 + tokenize2))
+
+# Sort the terms alphabetically for a consistent inverted index
+terms = sorted(terms, reverse=False)
+print("Unique terms (sorted):", terms)
+
+# Step 5: Build the Inverted Index
+# Initialize an empty dictionary to store the inverted index
+inverted_index = {}
+
+# Iterate through each term and identify which document(s) it appears in
+for term in terms:
+    documents = []  # List to store document references for the term
+    if term in tokenize1:  # Check if the term is in Document 1
+        documents.append("Document 1")
+    if term in tokenize2:  # Check if the term is in Document 2
+        documents.append("Document 2")
+    inverted_index[term] = documents  # Add the term and its documents to the index
+
+# Step 6: Display the Inverted Index
+# Print each term along with the list of documents it appears in
+for term, documents in inverted_index.items():
+    print(term, "->", ", ".join(documents))
+-------------------------------------------------------
+# 04 - PageRank Algorithm Implementation
+
+import numpy as np  # Importing NumPy for numerical operations
+
+# Step 1: Define the adjacency matrix
+# This matrix represents the link structure of the web pages.
+# Rows and columns represent web pages, and a 1 in a cell indicates a link from one page to another.
+adjacency_matrix = np.array([
+    [0, 1, 1, 0],  # Page 0 links to Page 1 and Page 2
+    [0, 0, 0, 1],  # Page 1 links to Page 3
+    [1, 1, 0, 1],  # Page 2 links to Page 0, Page 1, and Page 3
+    [0, 0, 1, 0]   # Page 3 links to Page 2
+], dtype=float)
+
+# Number of pages (nodes in the graph)
+N = adjacency_matrix.shape[0]
+print("Number of pages:", N)
+
+# Step 2: Normalize the adjacency matrix to create a stochastic matrix
+# Ensure the columns of the adjacency matrix sum to 1 (outgoing links normalized).
+# This represents the probability of navigating from one page to another.
+for i in range(N):
+    if np.sum(adjacency_matrix[:, i]) != 0:  # Check if the column has outgoing links
+        adjacency_matrix[:, i] /= np.sum(adjacency_matrix[:, i])  # Normalize column
+print("Normalized adjacency matrix (stochastic matrix):\n", adjacency_matrix)
+
+# Step 3: Initialize the rank vector
+# Initially, all pages are given an equal rank.
+rank = np.ones(N) / N  # Divide 1 equally among all pages
+print("Initial rank vector:", rank)
+
+# Step 4: Set up parameters for the PageRank algorithm
+iteration = 1000  # Maximum number of iterations
+t = 1e-6  # Convergence threshold (tolerance for rank changes)
+dampingfactor = 0.85  # Damping factor (probability of continuing to follow links)
+
+# Step 5: Iteratively calculate PageRank
+# Repeat the calculation until the ranks converge or the maximum iterations are reached.
+for i in range(iteration):
+    # Calculate the new rank using the formula:
+    # newrank = (1 - damping factor) + (damping factor * stochastic matrix * current rank)
+    newrank = (1 - dampingfactor) + (dampingfactor * np.dot(adjacency_matrix, rank))
+    
+    # Check for convergence: If the difference between new and old rank vectors is below the threshold, stop.
+    if np.linalg.norm(newrank - rank, 1) < t:  # L1 norm for difference
+        break
+    rank = newrank  # Update the rank vector for the next iteration
+print("Final rank vector:", rank)
+
+# Step 6: Identify the page with the highest rank
+high_rank_page = np.argmax(rank)  # Find the index of the page with the highest rank
+high_rank_score = rank[high_rank_page]  # Get the rank score of the highest-ranked page
+print("Page with the highest rank:", high_rank_page)
+print("Highest rank score:", high_rank_score)
+-------------------------------------------------------
+# 05 Web crawler 
+pip install bs4
+pip install requests
+from bs4 import BeautifulSoup
+import requests
+import pandas as pd
+def crawl(url):
+    headers = {
+        "user-agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"}
+    response =requests.get(url,headers=headers)
+    soup = BeautifulSoup(response.text,'html.parser')
+
+    products = []
+    price = []
+    ratings = []
+
+    p_name = soup.find_all('span',class_="a-size-medium a-color-base a-text-normal")
+    p_price = soup.find_all('span',class_="a-price-whole")
+    p_rating = soup.find_all('span',class_="a-size-base s-underline-text")
+
+    for i in p_name:
+        products.append(i.text)
+
+    for i in p_price:
+        price.append(i.text)
+
+    for i in p_rating:
+        ratings.append(i.text)
+
+    df = pd.DataFrame({'Product':products,'Price':price,'Ratings':ratings})
+    return df
+
+df = crawl('https://www.amazon.in/s?k=phones+under+15000&crid=2OMU10J19V04S&sprefix=phones+under+15000%2Caps%2C751&ref=nb_sb_noss_')
+df
+df.to_csv('amazon.csv')
+def image_crawler(url):
+    head = {
+        "user-agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"}
+    response = requests.get(url,headers = head)
+    soup = BeautifulSoup(response.text,'html.parser')
+
+    image = []
+    im_data = soup.find_all('img',class_="s-image")
+
+    for i in im_data:
+        image.append(i.get('src'))
+    return image
+img = image_crawler('https://www.amazon.in/s?k=phones+under+15000&crid=2OMU10J19V04S&sprefix=phones+under+15000%2Caps%2C751&ref=nb_sb_noss_')
+img
+import os
+os.makedirs('amazon',exist_ok=True)
+i=0
+for url in img:
+    try:
+        resp=requests.get(url)
+        with open(f"amazon/{i}.jpg", 'wb') as f:
+            f.write(resp.content)
+        i+=1
+    except:
+        pass
+#Video
+import requests 
+from bs4 import BeautifulSoup
+url="https://vimeo.com/"
+header("user-agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.8.8 Safari/537.36")
+response requests.get(url, headers-header)
+soup = BeautifulSoup(response.text, html.parser')
+videos = soup.find_all('video'class_w-full h-auto')
+link = videos[0].get("src")
+link
+import os
+os.mkdir("practice')
+response = requests.get(link)
+with open("practice/video.mp4", uti) as f:
+f.write(response.content)
+------------------------------------------------------
+# 05 Web crawler 
+pip install bs4
+pip install requests
+from bs4 import BeautifulSoup
+import requests
+import pandas as pd
+def crawl(url):
+    headers = {
+        "user-agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"}
+    response =requests.get(url,headers=headers)
+    soup = BeautifulSoup(response.text,'html.parser')
+
+    products = []
+    price = []
+    ratings = []
+
+    p_name = soup.find_all('span',class_="a-size-medium a-color-base a-text-normal")
+    p_price = soup.find_all('span',class_="a-price-whole")
+    p_rating = soup.find_all('span',class_="a-size-base s-underline-text")
+
+    for i in p_name:
+        products.append(i.text)
+
+    for i in p_price:
+        price.append(i.text)
+
+    for i in p_rating:
+        ratings.append(i.text)
+
+    df = pd.DataFrame({'Product':products,'Price':price,'Ratings':ratings})
+    return df
+
+df = crawl('https://www.amazon.in/s?k=phones+under+15000&crid=2OMU10J19V04S&sprefix=phones+under+15000%2Caps%2C751&ref=nb_sb_noss_')
+df
+df.to_csv('amazon.csv')
+def image_crawler(url):
+    head = {
+        "user-agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"}
+    response = requests.get(url,headers = head)
+    soup = BeautifulSoup(response.text,'html.parser')
+
+    image = []
+    im_data = soup.find_all('img',class_="s-image")
+
+    for i in im_data:
+        image.append(i.get('src'))
+    return image
+img = image_crawler('https://www.amazon.in/s?k=phones+under+15000&crid=2OMU10J19V04S&sprefix=phones+under+15000%2Caps%2C751&ref=nb_sb_noss_')
+img
+import os
+os.makedirs('amazon',exist_ok=True)
+i=0
+for url in img:
+    try:
+        resp=requests.get(url)
+        with open(f"amazon/{i}.jpg", 'wb') as f:
+            f.write(resp.content)
+        i+=1
+    except:
+        pass
+#Video
+import requests 
+from bs4 import BeautifulSoup
+url="https://vimeo.com/"
+header("user-agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.8.8 Safari/537.36")
+response requests.get(url, headers-header)
+soup = BeautifulSoup(response.text, html.parser')
+videos = soup.find_all('video'class_w-full h-auto')
+link = videos[0].get("src")
+link
+import os
+os.mkdir("practice')
+response = requests.get(link)
+with open("practice/video.mp4", uti) as f:
+f.write(response.content)
+
+--------------------------------------------------
+
+IIOT
+-----------------
+// Ultrasonic -
+void setup(){
+    Serial.begin(9600);
+    pinMode(9, INPUT);
+    pinMode(10, OUTPUT);
+}
+
+void loop(){
+    digitalWrite(9, LOW);
+    delayMicroseconds(20); // Corrected typo here
+    digitalWrite(10, HIGH);
+    delayMicroseconds(20);
+    digitalWrite(10, LOW);
+    delayMicroseconds(20);
+
+    int reading = pulseIn(9, HIGH);
+    int distance = (reading / 2) / 29;
+    Serial.println(distance);
+    delay(500);
+}
+
+// Soil Moisture
+void setup(){
+    Serial.begin(9600);
+    pinMode(A0, INPUT);
+    //pinMode(9, OUTPUT);
+}
+
+void loop(){
+    int reading = analogRead(A0); // Corrected typo here
+    int distance = map(reading, 0, 876, 0, 100);
+    Serial.println(distance);
+    delay(500); // Corrected typo here
+}
+
+// PIR Sensor 
+int obs=12;
+int obstacle = LOW;
+void setup()
+{
+  pinMode(13, OUTPUT);
+  pinMode(12,INPUT);
+  Serial.begin(9600);
+}
+
+void loop()
+{
+  obstacle = digitalRead(obs);
+  if(obstacle == HIGH){
+  	Serial.println('Obstacle Detected...');
+      digitalWrite(13, HIGH);
+  }
+  else{
+  	Serial.println('Not Found');
+    digitalWrite(13, LOW);
+  }
+  delay(200);
+}
+
+//GAS Sensor
+int LED = A1;
+int MQ2pin = A0;
+
+void setup()
+{
+  Serial.begin(9600);
+  pinMode(LED, OUTPUT); // Set LED pin as OUTPUT
+}
+
+void loop()
+{
+  float sensorValue = analogRead(MQ2pin); // Use the global MQ2pin variable
+  if (sensorValue >= 200)
+  {
+    digitalWrite(LED, LOW);
+    Serial.print("Sensor Value: ");
+    Serial.println(sensorValue);
+    Serial.println("SMOKE DETECTED !!");
+  }
+  else
+  {
+    digitalWrite(LED, HIGH);
+    Serial.print("Sensor Value: ");
+    Serial.println(sensorValue);
+  }
+  delay(1000);
+}
+
+float getsensorValue(int pin)
+{
+  return analogRead(pin);
+}
+
+// IR Sensor 
+int IRSensor = 9; // connect IR sensor module to Arduino pin D9
+int LED = 13; // connect LED to Arduino pin 13
+void setup(){
+  Serial.begin(9600); // Init Serial at 115200 Baud Rate.
+  Serial.println("Serial Working"); // Test to check if serial is working or not
+  pinMode(IRSensor, INPUT); // IR Sensor pin INPUT
+  pinMode(LED, OUTPUT); // LED Pin Output
+}
+void loop(){
+  int sensorStatus = digitalRead(IRSensor); // Set the GPIO as Input
+  if (sensorStatus == 1) // Check if the pin high or not
+  {
+    // if the pin is high turn off the onboard Led
+    digitalWrite(LED, LOW); // LED LOW
+    Serial.println("Motion Ended!"); // print Motion Detected! on the serial monitor window
+    delay(200);
+  }
+  else  {
+    //else turn on the onboard LED
+    digitalWrite(LED, HIGH); // LED High
+    Serial.println("Motion Detected!");  // print Motion Ended! on the serial monitor window
+    delay(200);
+  }
+}
+
+// character
+void setup() {
+  Serial.begin(9600);
+  pinMode(13, OUTPUT); // Red LED
+  pinMode(12, OUTPUT); // Green LED
+  pinMode(11, OUTPUT); // Yellow LED
+  pinMode(9, OUTPUT); // Blue LED
+}
+
+void loop() {
+  if (Serial.available()) {
+    char ch = Serial.read();
+    digitalWrite(13, ch == 'r'); // Red
+    digitalWrite(12, ch == 'g'); // Green
+    digitalWrite(11, ch == 'y'); // Yellow
+    digitalWrite(9, ch == 'b'); // Blue
+  }
+}
+
+//counter
+int count=0;
+void setup()
+{
+  Serial.begin(9600);
+  pinMode(13, OUTPUT);
+  pinMode(12, OUTPUT);
+  pinMode(11, OUTPUT);
+}
+
+void loop()
+{
+  Serial.println(count);
+  if(count<=100){
+  	digitalWrite(13, HIGH);
+    delay(100);
+    digitalWrite(13,LOW);
+    delay(100);
+    count++;
+  }
+  else if(count>100 && count<=200){
+  	digitalWrite(12, HIGH);
+    delay(100);
+    digitalWrite(12, LOW);
+    delay(100);
+    count++;
+  }
+  if(count>200){
+  	digitalWrite(11, HIGH);
+    delay(100);
+    digitalWrite(11,LOW);
+    delay(100);
+    count++;
+  }
+}
+
+// Data Analysis -
+data =data.drop(columns='Unnamed: 0')
+data.columns
+# 1. Which country has the most and least number of accidents?
+accidents_by_country = data['Countries'].value_counts()
+most_accidents_country = accidents_by_country.idxmax()
+least_accidents_country = accidents_by_country.idxmin()
+print(f"Country with most accidents: {most_accidents_country} ({accidents_by_country.max()} accidents)")
+print(f"Country with least accidents: {least_accidents_country} ({accidents_by_country.min()} accidents)")
+# 2.Which industrial sector has most and least number of accidents?
+accidents_by_sector = data['Industry Sector'].value_counts()
+most_accidents_sector = accidents_by_sector.idxmax()
+least_accidents_sector = accidents_by_sector.idxmin()
+
+print(f"Sector with most accidents: {most_accidents_sector} ({accidents_by_sector.max()} accidents)")
+print(f"Sector with least accidents: {least_accidents_sector} ({accidents_by_sector.min()} accidents)")
+# 3.Among employee and third party who is most likely to get into accident?
+accidents_by_type = data['Employee or Third Party'].value_counts()
+most_likely_accident_type = accidents_by_type.idxmax()
+
+print(f"Most likely to get into an accident: {most_likely_accident_type} ({accidents_by_type.max()} incidents)")
+# 4. Which gender is most likely to get into an accident?
+accidents_by_gender = data['Genre'].value_counts()
+most_likely_gender = accidents_by_gender.idxmax()
+
+print(f"Gender most likely to get into an accident: {most_likely_gender} ({accidents_by_gender.max()} incidents)")
+# 5. Visualizations
+import matplotlib.pyplot as plt
+import seaborn as sns
+# Bar plot for accidents by country
+plt.figure(figsize=(10, 6))
+sns.barplot(x=accidents_by_country.index, y=accidents_by_country.values, palette='viridis')
+plt.title("Accidents by Country")
+plt.xlabel("Country")
+plt.ylabel("Number of Accidents")
+plt.xticks(rotation=45)
+plt.show()
+# Count plot for accidents by sector
+plt.figure(figsize=(10, 6))
+sns.countplot(data=data, x='Industry Sector', palette='viridis', order=accidents_by_sector.index)
+plt.title("Accidents by Industrial Sector")
+plt.xlabel("Sector")
+plt.ylabel("Count of Accidents")
+plt.xticks(rotation=45)
+plt.show()
+# Count plot for Employee or Third Party
+plt.figure(figsize=(6, 4))
+sns.countplot(data=data, x='Employee or Third Party', palette='viridis')
+plt.title("Accidents by Type (Employee vs. Third Party)")
+plt.xlabel("Type of Person Involved")
+plt.ylabel("Count of Accidents")
+plt.show()
+# Count plot for Gender
+plt.figure(figsize=(6, 4))
+sns.countplot(data=data, x='Genre', palette='viridis')
+plt.title("Accidents by Gender")
+plt.xlabel("Gender")
+plt.ylabel("Count of Accidents")
+plt.show()
+# Distribution of Accident Level
+plt.figure(figsize=(8, 6))
+sns.countplot(data=data, x='Accident Level', palette='coolwarm')
+plt.title("Distribution of Accident Level")
+plt.xlabel("Accident Level")
+plt.ylabel("Number of Accidents")
+plt.show()
+# 4. Heatmap for Country vs. Sector Accidents
+country_sector_pivot = data.pivot_table(index='Countries', columns='Industry Sector', aggfunc='size', fill_value=0)
+plt.figure(figsize=(12, 8))
+sns.heatmap(country_sector_pivot, annot=True, fmt="d", cmap='YlGnBu', cbar_kws={'label': 'Number of Accidents'})
+plt.title("Heatmap of Accidents by Country and Industry Sector")
+plt.xlabel("Industry Sector")
+plt.ylabel("Country")
+plt.show()

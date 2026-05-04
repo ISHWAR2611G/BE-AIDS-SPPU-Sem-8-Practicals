@@ -1,0 +1,25 @@
+const float TEMPERATURE_THRESHOLD = 23.0;  // Temperature limit in °C
+
+void setup() {
+  pinMode(8, OUTPUT);       // Buzzer connected to pin 8
+  Serial.begin(9600);       // Start serial communication
+}
+
+void loop() {
+  int tempReading = analogRead(A0);                   // Read analog value from TMP36 sensor
+  float voltage = tempReading * (5.0 / 1023.0);       // Convert ADC value to voltage
+  float temperatureC = (voltage - 0.5) * 100.0;       // Convert voltage to temperature in Celsius
+
+  Serial.print("Temperature: ");
+  Serial.print(temperatureC);
+  Serial.println(" °C");
+
+  if (temperatureC > TEMPERATURE_THRESHOLD) {
+    digitalWrite(8, HIGH);                            // Turn buzzer ON
+    Serial.println("ALERT: Temperature is too high!");
+  } else {
+    digitalWrite(8, LOW);                             // Turn buzzer OFF
+  }
+
+  delay(500);                                         // Small delay for stability
+}

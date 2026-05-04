@@ -1,0 +1,42 @@
+#define TRIG 10   // Trigger pin of HC-SR04
+#define ECHO 9    // Echo pin of HC-SR04
+#define LED 2     // LED or Buzzer pin
+
+void setup() {
+  pinMode(10, OUTPUT);
+  pinMode(9, INPUT);
+  pinMode(2, OUTPUT);
+  Serial.begin(9600);
+}
+
+void loop() {
+  long duration;
+  int distance;
+
+  // Send a short trigger pulse
+  digitalWrite(10, LOW);
+  delayMicroseconds(2);
+  digitalWrite(10, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(10, LOW);
+
+  // Measure the echo pulse duration
+  duration = pulseIn(9, HIGH);
+
+  // Convert duration to distance (in cm)
+  distance = duration * 0.034 / 2;
+
+  // Print distance on Serial Monitor
+  Serial.print("Distance: ");
+  Serial.print(distance);
+  Serial.println(" cm");
+
+  // Turn on LED/buzzer if object is closer than 50 cm
+  if (distance > 0 && distance <= 50) {
+    digitalWrite(2, HIGH);
+  } else {
+    digitalWrite(2, LOW);
+  }
+
+  delay(200); // small delay between readings
+}

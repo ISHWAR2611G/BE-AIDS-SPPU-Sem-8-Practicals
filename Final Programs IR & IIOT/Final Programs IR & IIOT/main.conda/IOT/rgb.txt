@@ -1,0 +1,44 @@
+char ch;
+const int redLED = 13;
+const int greenLED = 12;
+const int blueLED = 11;
+const int yellowLED = 10;
+
+
+void setup() {
+  Serial.begin(9600); 
+  pinMode(blueLED, OUTPUT);
+  pinMode(greenLED, OUTPUT);
+  pinMode(yellowLED, OUTPUT);
+  pinMode(redLED, OUTPUT);
+}
+
+void loop() {
+  if (Serial.available()) {
+    ch = Serial.read(); // Read the user input
+    Serial.print(ch);
+
+    // Turn off all LEDs first
+    digitalWrite(blueLED, LOW);
+    digitalWrite(greenLED, LOW);
+    digitalWrite(yellowLED, LOW);
+    digitalWrite(redLED, LOW);
+
+    // Control LEDs based on input
+    if (ch == 'b') {
+      // Blink the blue LED
+      digitalWrite(blueLED, HIGH);
+      delay(500);
+      digitalWrite(blueLED, LOW);
+    } 
+    else if (ch == 'g') {
+      digitalWrite(greenLED, HIGH);
+    } 
+    else if (ch == 'y') {
+      digitalWrite(yellowLED, HIGH);
+    } 
+    else if (ch == 'r') {
+      digitalWrite(redLED, HIGH);
+    }
+  }
+}

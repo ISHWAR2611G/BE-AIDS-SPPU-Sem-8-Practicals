@@ -1,0 +1,12 @@
+void setup(){
+ pinMode(7, OUTPUT);
+ Serial.begin(9600);
+}
+void loop(){
+ int val = analogRead(A1);
+ int val1 = map(val, 306, 750, 0, 100);
+ if(val1>1) digitalWrite(7,HIGH);
+ Serial.println(val);
+ delay(1000);
+ digitalWrite(7,LOW);
+}

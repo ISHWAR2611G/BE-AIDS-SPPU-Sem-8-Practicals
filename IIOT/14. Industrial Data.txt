@@ -1,0 +1,23 @@
+#include <LiquidCrystal.h>
+
+// Initialize the LCD: (RS, E, D4, D5, D6, D7)
+LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
+
+const int tempPin = A0; // TMP36 sensor connected to analog pin A0
+
+void setup() {
+  lcd.begin(16, 2);           // Set up the LCD's number of columns and rows
+  lcd.print("Temperature:");  // Print a title on the first line
+}
+
+void loop() {
+  int analogValue = analogRead(tempPin);                // Read the analog value from TMP36
+  float voltage = analogValue * (5.0 / 1023.0);         // Convert analog value to voltage
+  float temperatureC = (voltage - 0.5) * 100;           // Convert voltage to Celsius
+
+  lcd.setCursor(0, 1);                                  // Move cursor to second line
+  lcd.print(temperatureC);                              // Print temperature value
+  lcd.print(" C   ");                                   // Print units and clear old digits
+
+  delay(1000);                                          // Wait 1 second before next reading
+}

@@ -1,0 +1,17 @@
+int num;
+int squr;
+void setup()
+{
+  Serial.begin(9600);
+}
+void loop()
+{
+  Serial.print("Enter the Number :");
+  while(Serial.available()==0){}
+  num=Serial.parseInt();
+  Serial.println(num);
+  squr=sq(num);
+  Serial.print("Square of number is :");
+  Serial.print(squr);
+  Serial.println();
+}

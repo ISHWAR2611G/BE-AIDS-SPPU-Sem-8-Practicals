@@ -1,0 +1,37 @@
+// C++ code
+//
+int cn = 0;
+void setup()
+{ Serial.begin(9600);
+  pinMode(13, OUTPUT);
+  pinMode(12, OUTPUT);
+  pinMode(11, OUTPUT);
+}
+
+void loop() 
+{
+  Serial.println(cn);
+  cn+=25;
+  if(cn<=100){
+  digitalWrite(13, HIGH);
+  delay(1000); // Wait for 1000 millisecond(s)
+  digitalWrite(13, LOW);
+  delay(1000); // Wait for 1000 millisecond(s)
+ 
+  }
+  else if((cn>=101)&&(cn<=200)){
+  digitalWrite(12, HIGH);
+  delay(1000); // Wait for 1000 millisecond(s)
+  digitalWrite(12, LOW);
+  delay(1000); // Wait for 1000 millisecond(s)
+  }
+  else if((cn>=201)&&(cn<=300)){
+  digitalWrite(11, HIGH);
+  delay(1000); // Wait for 1000 millisecond(s)
+  digitalWrite(11, LOW);
+  delay(1000); // Wait for 1000 millisecond(s)
+  }
+  else if (cn=300){
+  cn=0;
+}
+} 

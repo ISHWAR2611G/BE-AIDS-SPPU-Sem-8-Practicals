@@ -1,0 +1,44 @@
+
+int count=0;
+void setup()
+{
+  Serial.begin(9600);
+  pinMode(13, OUTPUT);
+  pinMode(12, OUTPUT);
+  pinMode(11, OUTPUT);
+}
+
+void loop()
+{
+  Serial.println(count);
+  count+=25;
+  
+  if (count<=100)
+  {
+    digitalWrite(12, HIGH);
+    delay(1000);
+    digitalWrite(12, LOW);
+    delay(100);
+  }
+  
+  if (count>100 && count<=200)
+  {
+    digitalWrite(11, HIGH);
+    delay(1000);
+    digitalWrite(11, LOW);
+    delay(100); 
+  }
+  
+  if (count>200  && count<=300)
+  {
+    digitalWrite(13, HIGH);
+    delay(1000);
+    digitalWrite(13, LOW);
+    delay(100);
+  
+   	   if (count==300)
+  	   {
+    		count = 0;
+       }
+   }
+}

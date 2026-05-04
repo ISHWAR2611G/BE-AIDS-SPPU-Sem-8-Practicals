@@ -1,0 +1,26 @@
+int LED=13;
+int PIRPin=A3;
+int isObstacle=LOW;
+
+void setup()
+{
+  pinMode(13,OUTPUT);
+  pinMode(A3,INPUT);
+  Serial.begin(9600);
+}
+
+void loop()
+{
+  isObstacle=digitalRead(PIRPin);
+  if (isObstacle==HIGH){
+    Serial.println("OBSTACLE!!,OBSTACLE!!");
+    digitalWrite(LED,HIGH);
+  }
+  else
+  {
+    Serial.println("clear");
+    digitalWrite(LED,LOW);
+   
+    delay(1000);
+  }
+}

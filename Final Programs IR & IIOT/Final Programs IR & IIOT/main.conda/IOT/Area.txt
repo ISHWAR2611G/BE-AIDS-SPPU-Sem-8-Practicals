@@ -1,0 +1,14 @@
+int num;
+float area;
+void setup(){
+  Serial.begin(9600);
+}
+
+void loop(){
+  Serial.println("\nenter the number:");
+  while(Serial.available()==0){}
+  num=Serial.parseInt();
+  area=3.14*num*num;
+  Serial.print("Area of circle :");
+  Serial.print(area);
+}

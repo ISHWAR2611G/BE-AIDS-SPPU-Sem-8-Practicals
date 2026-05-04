@@ -1,0 +1,41 @@
+const int trigPin = 7;
+const int echoPin = 6;
+const int ledPin = 5; // Define LED pin
+
+long duration;
+int distance;
+
+void setup() {
+  pinMode(trigPin, OUTPUT); 
+  pinMode(echoPin, INPUT); 
+  pinMode(ledPin, OUTPUT); // Set LED pin as output
+  Serial.begin(9600); 
+}
+
+void loop() {
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+  
+  duration = pulseIn(echoPin, HIGH);
+  
+  distance = duration * 0.034 / 2;
+  
+  Serial.print("Distance from the object = ");
+  Serial.print(distance);
+  Serial.println(" cm");
+  
+  if (distance < 100) {
+    digitalWrite(ledPin, HIGH); // Turn LED on
+    delay(100);                 // Keep LED on for a moment
+    digitalWrite(ledPin, LOW);  // Turn LED off
+    delay(100);                 // Keep LED off for a moment
+  } else {
+    digitalWrite(ledPin, LOW);  // Ensure LED is off if object is farther than 150 cm
+  }
+  
+  delay(150); // Main loop delay
+}

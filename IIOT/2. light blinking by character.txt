@@ -1,0 +1,73 @@
+void setup() {
+  // LED pin setup
+  pinMode(13, OUTPUT); // Red LED
+  pinMode(12, OUTPUT); // Green LED
+  pinMode(11, OUTPUT); // Yellow LED
+
+  // Serial Monitor setup
+  Serial.begin(9600);
+  Serial.println("Enter r/R for Red light");
+  Serial.println("Enter y/Y for Yellow light");
+  Serial.println("Enter g/G for Green light");
+  Serial.println("Enter b/B for Green light blinking");
+}
+
+void loop() {
+  // Wait for serial input
+  while (Serial.available() == 0) {
+    // Do nothing until input is received
+  }
+
+  char input = Serial.read();   // Read one character
+  input = toupper(input);       // Convert to uppercase
+
+  int choice = 0;
+  if (input == 'R' || input == 'r') choice = 1;
+  else if (input == 'Y' || input == 'y') choice = 2;
+  else if (input == 'G' || input == 'g') choice = 3;
+  else if (input == 'B' || input == 'b') choice = 4;
+
+  switch (choice) {
+    case 1:  // Red Light
+      digitalWrite(12, LOW); // Green off
+      digitalWrite(11, LOW); // Yellow off
+      digitalWrite(13, HIGH); // Red on
+      delay(1000);
+      break;
+
+    case 2:  // Yellow Light
+      digitalWrite(13, LOW); // Red off
+      digitalWrite(12, LOW); // Green off
+      digitalWrite(11, HIGH); // Yellow on
+      delay(1000);
+      break;
+
+    case 3:  // Green Light
+      digitalWrite(13, LOW); // Red off
+      digitalWrite(11, LOW); // Yellow off
+      digitalWrite(12, HIGH); // Green on
+      delay(1000);
+      break;
+
+    case 4:  // Blinking Green
+      for (int i = 0; i < 5; i++) {
+        digitalWrite(12, HIGH);
+        delay(500);
+        digitalWrite(12, LOW);
+        delay(500);
+      }
+      break;
+
+    default: // Invalid input — flash all lights
+      digitalWrite(13, HIGH);
+      delay(500);
+      digitalWrite(13, LOW);
+      digitalWrite(12, HIGH);
+      delay(500);
+      digitalWrite(12, LOW);
+      digitalWrite(11, HIGH);
+      delay(500);
+      digitalWrite(11, LOW);
+      break;
+  }
+}
